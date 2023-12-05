@@ -90,7 +90,7 @@ fn get_first_number_and_split_string(input: &String) -> (Option<u32>, Option<Str
                     ret_number = Some(get_uint_from_string(number));
                     let split_index = index + number.len();
 
-                    let (_, end) = process_string.split_at(split_index);
+                    let (_, end) = process_string.split_at(1);
 
                     if end.to_string() == "" {
                         ret_string = None
