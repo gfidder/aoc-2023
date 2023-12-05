@@ -32,6 +32,9 @@ impl Calculation {
     }
 
     pub fn get_part_number(&self) -> u32 {
+        let mut part_numbers: Vec<u32> = vec![];
+        let mut sum: u32 = 0;
+
         for i in 0..Y_SIZE {
             let mut none_return = false;
             let mut start_pos: usize = 0;
@@ -43,7 +46,18 @@ impl Calculation {
                     let top_left = self.get_top_left_boundary(number_begin);
                     let bottom_right = self.get_bottom_right_boundary(number_end);
 
-                    self.find_symbol(top_left, bottom_right);
+                    if self.find_symbol(top_left, bottom_right) {
+                        let mut number_vec: Vec<char> = vec![];
+
+                        for j in number_begin.1..=number_end.1 {
+                            number_vec.push(self.matrix.get(i, j));
+                        }
+
+                        let number_str: String = number_vec.iter().collect();
+                        let number = number_str.parse::<u32>().unwrap();
+
+                        part_numbers.push(number);
+                    }
 
                     start_pos = number_end.1 + 1;
                 } else {
@@ -52,11 +66,28 @@ impl Calculation {
             }
         }
 
-        0
+        for part in part_numbers {
+            sum += part;
+        }
+
+        sum
     }
 
     fn find_symbol(&self, top_left: (usize, usize), bottom_right: (usize, usize)) -> bool {
-        for i in top_left.0..=bottom_right.0 {}
+        let symbol_chars = vec![
+            ',', ':', ';', '/', '?', '<', '>', '\\', '[', '{', '}', ']', '|', '!', '@', '#', '$',
+            '%', '^', '&', '*', '(', '(', '-', '_', '+', '=',
+        ];
+
+        for i in top_left.0..=bottom_right.0 {
+            for j in top_left.1..=bottom_right.1 {
+                let c = self.matrix.get(i, j);
+                if symbol_chars.contains(&c) {
+                    // println!("Found a character");
+                    return true;
+                }
+            }
+        }
 
         false
     }
@@ -80,11 +111,11 @@ impl Calculation {
         let mut ret_x = x;
         let mut ret_y = y;
 
-        if ret_x < X_SIZE {
+        if ret_x < X_SIZE - 1 {
             ret_x += 1;
         }
 
-        if ret_y < Y_SIZE {
+        if ret_y < Y_SIZE - 1 {
             ret_y += 1;
         }
 
