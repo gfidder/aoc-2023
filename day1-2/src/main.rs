@@ -136,7 +136,7 @@ fn get_uint_from_string(input: &String) -> u32 {
 }
 
 fn read_lines() -> Vec<String> {
-    read_to_string("input_file.txt")
+    read_to_string("day1-2/input_file.txt")
         .unwrap()
         .lines()
         .map(String::from)

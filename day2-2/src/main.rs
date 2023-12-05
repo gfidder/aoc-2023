@@ -124,7 +124,7 @@ fn calculate_set(input: &str) -> SetResult {
 }
 
 fn read_lines() -> Vec<String> {
-    read_to_string("input_file.txt")
+    read_to_string("day2-2/input_file.txt")
         .unwrap()
         .lines()
         .map(String::from)
