@@ -1,5 +1,5 @@
-pub const X_SIZE: usize = 140;
-pub const Y_SIZE: usize = 140;
+pub const X_SIZE: usize = 10;
+pub const Y_SIZE: usize = 10;
 
 #[derive(Debug)]
 pub struct Matrix {

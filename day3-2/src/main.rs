@@ -15,7 +15,7 @@ fn main() {
 }
 
 fn read_lines() -> Vec<String> {
-    read_to_string("day3-1/input_file.txt")
+    read_to_string("day3-2/input_file.txt")
         .unwrap()
         .lines()
         .map(String::from)
@@ -46,7 +46,7 @@ impl Calculation {
                     let top_left = self.get_top_left_boundary(number_begin);
                     let bottom_right = self.get_bottom_right_boundary(number_end);
 
-                    if self.find_symbol(top_left, bottom_right) {
+                    if self.find_gear(top_left, bottom_right) {
                         let mut number_vec: Vec<char> = vec![];
 
                         for j in number_begin.1..=number_end.1 {
@@ -73,11 +73,8 @@ impl Calculation {
         sum
     }
 
-    fn find_symbol(&self, top_left: (usize, usize), bottom_right: (usize, usize)) -> bool {
-        let symbol_chars = vec![
-            ',', ':', ';', '/', '?', '<', '>', '\\', '[', '{', '}', ']', '|', '!', '@', '#', '$',
-            '%', '^', '&', '*', '(', '(', '-', '_', '+', '=',
-        ];
+    fn find_gear(&self, top_left: (usize, usize), bottom_right: (usize, usize)) -> bool {
+        let symbol_chars = vec!['*'];
 
         for i in top_left.0..=bottom_right.0 {
             for j in top_left.1..=bottom_right.1 {
