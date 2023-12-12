@@ -32,8 +32,30 @@ impl Calculation {
     }
 
     pub fn get_part_number(&self) -> u32 {
-        let mut part_numbers: Vec<u32> = vec![];
         let mut sum: u32 = 0;
+
+        let gear_locations = self.find_all_gears();
+        let numbers = self.find_numbers();
+
+        for gear_location in gear_locations {
+            let mut neighbor_numbers = Vec::<NumberGrid>::new();
+            for num in &numbers {
+                if num.is_neighbor(gear_location) {
+                    neighbor_numbers.push(num.clone());
+                }
+            }
+
+            if neighbor_numbers.len() == 2 {
+                let product = neighbor_numbers[0].get_value() * neighbor_numbers[1].get_value();
+                sum += product;
+            }
+        }
+
+        sum
+    }
+
+    fn find_numbers(&self) -> Vec<NumberGrid> {
+        let mut numbers: Vec<NumberGrid> = vec![];
 
         for i in 0..Y_SIZE {
             let mut none_return = false;
@@ -43,21 +65,16 @@ impl Calculation {
                 if let Some(found_num) = self.matrix.get_num_coords(i, start_pos) {
                     let (number_begin, number_end) = found_num;
 
-                    let top_left = self.get_top_left_boundary(number_begin);
-                    let bottom_right = self.get_bottom_right_boundary(number_end);
+                    let mut number_vec: Vec<char> = vec![];
 
-                    if self.find_gear(top_left, bottom_right) {
-                        let mut number_vec: Vec<char> = vec![];
-
-                        for j in number_begin.1..=number_end.1 {
-                            number_vec.push(self.matrix.get(i, j));
-                        }
-
-                        let number_str: String = number_vec.iter().collect();
-                        let number = number_str.parse::<u32>().unwrap();
-
-                        part_numbers.push(number);
+                    for j in number_begin.1..=number_end.1 {
+                        number_vec.push(self.matrix.get(i, j));
                     }
+
+                    let number_str: String = number_vec.iter().collect();
+                    let number = number_str.parse::<u32>().unwrap();
+
+                    numbers.push(NumberGrid::new(number_begin.1, number_end.1, i, number));
 
                     start_pos = number_end.1 + 1;
                 } else {
@@ -66,21 +83,51 @@ impl Calculation {
             }
         }
 
-        for part in part_numbers {
-            sum += part;
-        }
-
-        sum
+        numbers
     }
 
-    fn find_gear(&self, top_left: (usize, usize), bottom_right: (usize, usize)) -> bool {
-        let symbol_chars = vec!['*'];
+    fn find_all_gears(&self) -> Vec<(usize, usize)> {
+        let mut gear_locations = Vec::<(usize, usize)>::new();
+
+        for i in 0..X_SIZE {
+            for j in 0..Y_SIZE {
+                let z = self.matrix.get(i, j);
+                if z == '*' {
+                    gear_locations.push((i, j));
+                }
+            }
+        }
+
+        gear_locations
+    }
+}
+
+#[derive(Debug, Clone)]
+struct NumberGrid {
+    left: usize,
+    right: usize,
+    y_loc: usize,
+    value: u32,
+}
+
+impl NumberGrid {
+    pub fn new(left: usize, right: usize, y_loc: usize, value: u32) -> Self {
+        Self {
+            left,
+            right,
+            y_loc,
+            value,
+        }
+    }
+
+    pub fn is_neighbor(&self, location: (usize, usize)) -> bool {
+        let top_left = get_top_left_boundary((self.y_loc, self.left));
+        let bottom_right = get_bottom_right_boundary((self.y_loc, self.right));
 
         for i in top_left.0..=bottom_right.0 {
             for j in top_left.1..=bottom_right.1 {
-                let c = self.matrix.get(i, j);
-                if symbol_chars.contains(&c) {
-                    // println!("Found a character");
+                let loc = (i, j);
+                if loc == location {
                     return true;
                 }
             }
@@ -89,33 +136,37 @@ impl Calculation {
         false
     }
 
-    fn get_top_left_boundary(&self, (x, y): (usize, usize)) -> (usize, usize) {
-        let mut ret_x = x;
-        let mut ret_y = y;
+    pub fn get_value(&self) -> u32 {
+        self.value
+    }
+}
 
-        if ret_x > 0 {
-            ret_x -= 1;
-        }
+fn get_top_left_boundary((x, y): (usize, usize)) -> (usize, usize) {
+    let mut ret_x = x;
+    let mut ret_y = y;
 
-        if ret_y > 0 {
-            ret_y -= 1;
-        }
-
-        (ret_x, ret_y)
+    if ret_x > 0 {
+        ret_x -= 1;
     }
 
-    fn get_bottom_right_boundary(&self, (x, y): (usize, usize)) -> (usize, usize) {
-        let mut ret_x = x;
-        let mut ret_y = y;
-
-        if ret_x < X_SIZE - 1 {
-            ret_x += 1;
-        }
-
-        if ret_y < Y_SIZE - 1 {
-            ret_y += 1;
-        }
-
-        (ret_x, ret_y)
+    if ret_y > 0 {
+        ret_y -= 1;
     }
+
+    (ret_x, ret_y)
+}
+
+fn get_bottom_right_boundary((x, y): (usize, usize)) -> (usize, usize) {
+    let mut ret_x = x;
+    let mut ret_y = y;
+
+    if ret_x < X_SIZE - 1 {
+        ret_x += 1;
+    }
+
+    if ret_y < Y_SIZE - 1 {
+        ret_y += 1;
+    }
+
+    (ret_x, ret_y)
 }
